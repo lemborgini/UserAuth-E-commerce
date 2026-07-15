@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Marketplace</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            width: 800px;
+            margin: auto;
+            background: #1f1f1f;
+            color: white;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 5px;
+            border: none;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin-top: 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background: #00b894;
+            color: white;
+        }
+
+        button:hover {
+            background: #019870;
+        }
+
+        pre {
+            background: #333;
+            padding: 15px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+        }
+
+        hr {
+            margin: 25px 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>JWT Marketplace Demo</h1>
+
+    <hr>
+
+    <h2>Create User</h2>
+
+    <input id="username" placeholder="Username">
+
+    <input id="email" placeholder="Email">
+
+    <input id="password" type="password" placeholder="Password">
+
+    <button onclick="createUser()">Create User</button>
+
+    <hr>
+
+    <h2>Login</h2>
+
+    <input id="loginEmail" placeholder="Email">
+
+    <input id="loginPassword" type="password" placeholder="Password">
+
+    <button onclick="login()">Login</button>
+
+    <hr>
+
+    <h2>JWT Token</h2>
+
+    <textarea id="token" rows="5"></textarea>
+
+    <button onclick="profile()">Get Profile</button>
+
+    <hr>
+
+    <h2>Create Product</h2>
+
+    <input id="productName" placeholder="Product Name">
+
+    <textarea id="productDescription" placeholder="Description"></textarea>
+
+    <select id="category">
+        <option value="0">Wearing</option>
+        <option value="1">Play</option>
+    </select>
+
+    <input id="productPrice" placeholder="Price">
+
+    <button onclick="createProduct()">Publish Product</button>
+
+    <hr>
+
+    <h2>Server Response</h2>
+
+    <pre id="output">Waiting...</pre>
+
+    <script>
+
+        function show(data) {
+            document.getElementById("output").textContent =
+                JSON.stringify(data, null, 4);
+        }
+
+        async function createUser() {
+
+            const res = await fetch("/createUser", {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+
+                    username: document.getElementById("username").value,
+                    email: document.getElementById("email").value,
+                    password: document.getElementById("password").value
+
+                })
+
+            });
+
+            show(await res.json());
+
+        }
+
+        async function login() {
+
+            const res = await fetch("/login", {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+
+                    email: document.getElementById("loginEmail").value,
+                    password: document.getElementById("loginPassword").value
+
+                })
+
+            });
+
+            const data = await res.json();
+
+            show(data);
+
+            if (data.token) {
+
+                document.getElementById("token").value = data.token;
+
+            }
+
+        }
+
+        async function profile() {
+
+    const token = document.getElementById("token").value;
+
+    const res = await fetch("/profile", {
+        headers: {
+            "Authorization": "Bearer " + token
+        }
+    });
+
+    const data = await res.json();
+
+    console.log(data);
+
+    show(data);
+}
+
+        async function createProduct() {
+
+            const token = document.getElementById("token").value;
+
+            const res = await fetch("/createProduct", {
+
+                method: "POST",
+
+                headers: {
+
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + token
+
+                },
+
+                body: JSON.stringify({
+
+                    name: document.getElementById("productName").value,
+                    description: document.getElementById("productDescription").value,
+                    category: Number(document.getElementById("category").value),
+                    price: document.getElementById("productPrice").value
+
+                })
+
+            });
+
+            show(await res.json());
+
+        }
+
+    </script>
+
+</body>
+
+</html>
